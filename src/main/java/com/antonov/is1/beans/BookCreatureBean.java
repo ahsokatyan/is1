@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 
 @Named
@@ -41,9 +42,13 @@ public class BookCreatureBean implements Serializable {
     private BookCreature selectedCreature;
     private BookCreature newCreature;
 
+
+    private Long selectedCityId;
+    private Long selectedRingId;
+
     // Пагинация
     private int currentPage = 1;
-    private int pageSize = 15;
+    private int pageSize = 5;
     private long totalCount;
 
     @PostConstruct
@@ -152,10 +157,53 @@ public class BookCreatureBean implements Serializable {
         return (long) Math.ceil((double) totalCount / pageSize);
     }
 
+    public String createCreatureInSeparatePage() {
+        try {
+            // Валидация обязательных полей
+            if (newCreature.getName() == null || newCreature.getName().trim().isEmpty()) {
+                addMessage("Ошибка", "Имя обязательно");
+                return null;
+            }
 
+            if (newCreature.getAge() == null || newCreature.getAge() <= 0) {
+                addMessage("Ошибка", "Возраст должен быть больше 0");
+                return null;
+            }
 
-    public void debugConsole(String value){
-        System.out.println("Converting to object: " + value);
-//        System.out.println("Converting to string: " + value);
+            if (newCreature.getCoordinates() == null) {
+                addMessage("Ошибка", "Координаты обязательны");
+                return null;
+            }
+
+            // Устанавливаем связи по ID
+
+            if (selectedCityId != null) {
+                Optional<MagicCity> city = magicCityService.getMagicCityById(selectedCityId);
+                city.ifPresent(newCreature::setCreatureLocation);
+            }
+
+            if (selectedRingId != null) {
+                Optional<Ring> ring = ringService.getRingById(selectedRingId);
+                ring.ifPresent(newCreature::setRing);
+            }
+
+            // Сохраняем
+            BookCreature savedCreature = bookCreatureService.createBookCreature(newCreature);
+
+            // Сбрасываем форму
+            initNewCreature();
+            selectedCityId = null;
+            selectedRingId = null;
+
+            // Редирект на страницу просмотра созданного существа
+            return "view-creature?id=" + savedCreature.getId() + "&faces-redirect=true";
+
+        } catch (Exception e) {
+            addMessage("Ошибка", "Не удалось создать существо: " + e.getMessage());
+            return null;
+        }
     }
+
+
+
 }

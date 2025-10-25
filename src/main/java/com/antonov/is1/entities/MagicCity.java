@@ -46,16 +46,16 @@ public class MagicCity {
 
     @Override
     public String toString() {
-        return "MagicCity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", area=" + area +
-                ", population=" + population +
-                ", establishmentDate=" + establishmentDate +
-                ", governor=" + governor +
-                ", capital=" + capital +
-                ", populationDensity=" + populationDensity +
-                '}';
+        return "MagicCity {\n" +
+                "\tid = " + id + ",\n" +
+                "\tname = '" + name + "',\n" +
+                "\tarea = " + area + ",\n" +
+                "\tpopulation = " + population + ",\n" +
+                "\testablishmentDate = " + establishmentDate + ",\n" +
+                "\tgovernor = " + governor + ",\n" +
+                "\tcapital = " + capital + ",\n" +
+                "\tpopulationDensity = " + populationDensity + "\n" +
+                "}";
     }
 
     @Override

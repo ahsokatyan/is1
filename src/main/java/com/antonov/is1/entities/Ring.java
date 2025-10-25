@@ -32,12 +32,12 @@ public class Ring {
 
     @Override
     public String toString() {
-        return "Ring{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", power=" + power +
-                ", weight=" + weight +
-                '}';
+        return "Ring {\n" +
+                "\tid = " + id + ",\n" +
+                "\tname = '" + name + "',\n" +
+                "\tpower = " + power + ",\n" +
+                "\tweight = " + weight + "\n" +
+                "}";
     }
 
     @Override

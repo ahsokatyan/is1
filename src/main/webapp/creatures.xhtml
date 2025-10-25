@@ -8,18 +8,70 @@
 <h:head>
     <title>Управление существами</title>
     <style type="text/css">
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .table th { background-color: #f5f5f5; }
-        .btn { padding: 8px 12px; margin: 5px; text-decoration: none; border: none; cursor: pointer; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-        .form-group { margin: 10px 0; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; }
-        .messages { color: red; margin: 10px 0; }
-        .pagination { margin: 20px 0; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f5f5f5;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            margin: 5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .form-group {
+            margin: 10px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .messages {
+            color: red;
+            margin: 10px 0;
+        }
+
+        .pagination {
+            margin: 20px 0;
+        }
     </style>
 </h:head>
 
@@ -37,86 +89,23 @@
 
         <!-- Сообщения об ошибках/успехе -->
         <h:messages globalOnly="false" styleClass="messages" infoClass="success" errorClass="error"/>
-
+        <div style="border: 1px solid #ccc; padding: 20px; margin: 20px 0;">
+            <h3>🔍 Поиск существа по ID</h3>
+            <h:form>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <h:inputText value="#{navigationBean.searchId}" required="true"
+                                 style="padding: 8px; width: 200px;"
+                                 placeholder="Введите ID существа"/>
+                    <h:commandButton value="Найти" action="#{navigationBean.searchCreature}"
+                                     style="padding: 8px 16px;"/>
+                </div>
+            </h:form>
+        </div>
         <!-- Форма создания нового существа -->
-        <h:form id="createForm">
-            <h3>➕ Создать новое существо</h3>
-
-            <div class="form-group">
-                <h:outputLabel for="name" value="Имя:"/>
-                <h:inputText id="name" value="#{bookCreatureBean.newCreature.name}" required="true" requiredMessage="Имя обязательно"/>
-            </div>
-
-            <div class="form-group">
-                <h:outputLabel for="age" value="Возраст:"/>
-                <h:inputText id="age" value="#{bookCreatureBean.newCreature.age}" required="true" requiredMessage="Возраст обязателен">
-                    <f:validateLongRange minimum="1"/>
-                </h:inputText>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="form-group">
-                    <h:outputLabel for="x" value="Координата X:"/>
-                    <h:inputText id="x" value="#{bookCreatureBean.newCreature.coordinates.x}" required="true">
-                        <f:validateDoubleRange minimum="-998.999"/>
-                    </h:inputText>
-                </div>
-
-                <div class="form-group">
-                    <h:outputLabel for="y" value="Координата Y:"/>
-                    <h:inputText id="y" value="#{bookCreatureBean.newCreature.coordinates.y}" required="true">
-                        <f:validateLongRange minimum="-933"/>
-                    </h:inputText>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <h:outputLabel for="attackLevel" value="Уровень атаки:"/>
-                <h:inputText id="attackLevel" value="#{bookCreatureBean.newCreature.attackLevel}" required="true">
-                    <f:validateLongRange minimum="1"/>
-                </h:inputText>
-            </div>
-
-            <div class="form-group">
-                <h:outputLabel for="creatureType" value="Тип существа:"/>
-                <h:selectOneMenu id="creatureType" value="#{bookCreatureBean.newCreature.creatureType}">
-                    <f:selectItem itemLabel="Выберите тип" noSelectionOption="true"/>
-                    <f:selectItem itemLabel="HOBBIT" itemValue="HOBBIT"/>
-                    <f:selectItem itemLabel="ELF" itemValue="ELF"/>
-                    <f:selectItem itemLabel="HUMAN" itemValue="HUMAN"/>
-                    <f:selectItem itemLabel="GOLLUM" itemValue="GOLLUM"/>
-                </h:selectOneMenu>
-            </div>
-
-            <div class="form-group">
-                <h:outputLabel for="city" value="Город:"/>
-                <h:selectOneMenu id="city" value="#{bookCreatureBean.newCreature.creatureLocation}">
-                    <f:selectItem itemLabel="Без города" noSelectionOption="true"/>
-                    <f:selectItems value="#{bookCreatureBean.availableCities}"
-                                   var="city"
-                                   itemLabel="#{city.name}"
-                                   itemValue="#{city}"/>
-                    <f:validator validatorId="debugValidator"/>
-                </h:selectOneMenu>
-
-            </div>
-
-            <div class="form-group">
-                <h:outputLabel for="ring" value="Кольцо:"/>
-                <h:selectOneMenu id="ring" value="#{bookCreatureBean.newCreature.ring}">
-                    <f:selectItem itemLabel="Без кольца" noSelectionOption="true"/>
-                    <f:selectItems value="#{bookCreatureBean.availableRings}"
-                                   var="ring"
-                                   itemLabel="#{ring.name}"
-                                   itemValue="#{ring}"/>
-                    <f:validator validatorId="debugValidator"/>
-                </h:selectOneMenu>
-            </div>
-
-            <h:commandButton value="Создать существо"
-                             action="#{bookCreatureBean.createCreature}"
-                             styleClass="btn btn-primary"/>
-        </h:form>
+        <div style="margin-bottom: 20px;">
+            <h:link outcome="create-creature" value="➕ Создать новое существо" styleClass="btn btn-primary"
+                    style="font-size: 16px; padding: 10px 20px;"/>
+        </div>
 
         <hr/>
 
@@ -146,32 +135,39 @@
                 </h:column>
 
                 <h:column>
+                    <f:facet name="header">Координаты</f:facet>
+                    (#{creature.coordinates.x}, #{creature.coordinates.y})
+                </h:column>
+
+                <h:column>
                     <f:facet name="header">Уровень атаки</f:facet>
                     #{creature.attackLevel}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Город</f:facet>
-                    #{creature.creatureLocation != null ? creature.creatureLocation.name : 'Нет'}
+                    <f:facet name="header">🏙️ Город</f:facet>
+                    #{creature.creatureLocation != null ? creature.creatureLocation.toString() : 'Нет'}
                 </h:column>
 
                 <h:column>
                     <f:facet name="header">Кольцо</f:facet>
-                    #{creature.ring != null ? creature.ring.name : 'Нет'}
+                    #{creature.ring != null ? creature.ring.toString() : 'Нет'}
                 </h:column>
 
                 <h:column>
                     <f:facet name="header">Действия</f:facet>
-                    <h:commandButton value="✏️ Редактировать"
-                                     action="#{bookCreatureBean.setSelectedCreature(creature)}"
-                                     styleClass="btn"/>
+                    <h:link outcome="view-creature" value="👁️ Просмотр" style="margin-right: 5px;">
+                        <f:param name="id" value="#{creature.id}"/>
+                    </h:link>
 
-                    <h:commandButton value="🗑️ Удалить"
-                                     action="#{bookCreatureBean.deleteCreature}"
-                                     onclick="return confirm('Удалить существо #{creature.name}?')"
-                                     styleClass="btn btn-danger">
-                        <f:setPropertyActionListener target="#{bookCreatureBean.selectedCreature}" value="#{creature}"/>
-                    </h:commandButton>
+                    <h:link outcome="edit-creature" value="✏️ Редакт." style="margin-right: 5px;"
+                            onclick="return confirm('Вы уверены что хотите редактировать это существо?')">
+                        <f:param name="id" value="#{creature.id}"/>
+                    </h:link>
+
+                    <h:link outcome="delete-creature" value="🗑️ Удалить">
+                        <f:param name="id" value="#{creature.id}"/>
+                    </h:link>
                 </h:column>
             </h:dataTable>
 
