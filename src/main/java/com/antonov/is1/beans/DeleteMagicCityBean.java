@@ -1,6 +1,8 @@
 package com.antonov.is1.beans;
 
 import com.antonov.is1.entities.MagicCity;
+import com.antonov.is1.services.MagicCityDeletionService;
+import com.antonov.is1.services.MagicCityDeletionAnalysis;
 import com.antonov.is1.services.MagicCityService;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,10 +20,18 @@ import java.io.Serializable;
 public class DeleteMagicCityBean implements Serializable {
 
     @Inject
+    private MagicCityDeletionService magicCityDeletionService;
+
+    @Inject
     private MagicCityService magicCityService;
 
     private Long cityId;
     private MagicCity city;
+
+    // Поля для диалога удаления
+    private boolean showDeleteDialog = false;
+    private MagicCityDeletionAnalysis deletionAnalysis;
+    private Long selectedNewCityId;
 
     public void loadCity() {
         if (cityId != null) {
@@ -29,15 +39,44 @@ public class DeleteMagicCityBean implements Serializable {
         }
     }
 
-    public String deleteCity() {
+    /**
+     * Инициирует удаление с анализом связей
+     */
+    public void initiateDeletion() {
+        this.deletionAnalysis = magicCityDeletionService.analyzeDeletion(cityId);
+
+        if (deletionAnalysis.requiresReassignment()) {
+            // Показываем диалог перепривязки
+            this.showDeleteDialog = true;
+        } else {
+            // Удаляем сразу (в городе нет существ)
+            performDeletion();
+        }
+    }
+
+    /**
+     * Выполняет удаление с учетом выбранных опций
+     */
+    public String performDeletion() {
         try {
-            magicCityService.deleteMagicCity(cityId);
+            magicCityDeletionService.deleteCityWithReassignment(cityId, selectedNewCityId);
             addMessage("Успех", "Город удален успешно!");
+            resetDeleteDialog();
             return "cities?faces-redirect=true";
         } catch (Exception e) {
             addMessage("Ошибка", "Не удалось удалить город: " + e.getMessage());
             return null;
         }
+    }
+
+    public void cancelDeletion() {
+        resetDeleteDialog();
+    }
+
+    private void resetDeleteDialog() {
+        this.showDeleteDialog = false;
+        this.deletionAnalysis = null;
+        this.selectedNewCityId = null;
     }
 
     private void addMessage(String summary, String detail) {

@@ -21,6 +21,15 @@
       .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
       .btn-danger { background: #dc3545; color: white; }
       .btn-secondary { background: #6c757d; color: white; }
+      .dialog-overlay {
+         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+         background: rgba(0,0,0,0.5); display: flex; justify-content: center;
+         align-items: center; z-index: 1000;
+      }
+      .dialog-content {
+         background: white; padding: 25px; border-radius: 8px;
+         min-width: 500px; max-width: 80%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
    </style>
 </h:head>
 
@@ -34,6 +43,7 @@
 
       <h:messages/>
 
+      <!-- Основная информация о кольце -->
       <ui:fragment rendered="#{deleteRingBean.ring != null}">
          <div class="warning-box">
             <h3>⚠️ Внимание!</h3>
@@ -60,11 +70,11 @@
             </tr>
          </table>
 
+         <!-- Кнопка для инициации удаления (анализа связей) -->
          <h:form>
             <h:commandButton value="✅ Подтвердить удаление"
-                             action="#{deleteRingBean.deleteRing}"
-                             styleClass="btn btn-danger"
-                             onclick="return confirm('Вы уверены что хотите удалить это кольцо?')"/>
+                             action="#{deleteRingBean.initiateDeletion}"
+                             styleClass="btn btn-danger"/>
 
             <h:link outcome="view-ring" value="❌ Отмена" styleClass="btn btn-secondary">
                <f:param name="id" value="#{deleteRingBean.ring.id}"/>
@@ -72,9 +82,48 @@
          </h:form>
       </ui:fragment>
 
+      <!-- Сообщение если кольцо не найдено -->
       <ui:fragment rendered="#{deleteRingBean.ring == null}">
          <p style="color: red;">Кольцо с ID #{deleteRingBean.ringId} не найдено.</p>
+         <h:link outcome="rings" value="Вернуться к списку колец" styleClass="btn btn-secondary"/>
       </ui:fragment>
    </div>
+
+   <!-- Диалог перепривязки (показывается только если требуется перепривязка) -->
+   <ui:fragment rendered="#{deleteRingBean.showDeleteDialog}">
+      <div class="dialog-overlay">
+         <div class="dialog-content">
+            <h2>🔄 Перепривязка кольца</h2>
+
+            <p>Кольцо <strong>#{deleteRingBean.ring.name} #{deleteRingBean.ring.id}</strong> используется существом:
+               <strong>#{deleteRingBean.deletionAnalysis.currentOwner.name} #{deleteRingBean.deletionAnalysis.currentOwner.id}</strong></p>
+
+            <p>Выберите новое кольцо для этого существа:</p>
+
+            <h:form id="reassignmentForm">
+               <div style="margin: 20px 0;">
+                  <h:selectOneMenu value="#{deleteRingBean.selectedNewRingId}"
+                                   style="width: 100%; padding: 8px; margin-bottom: 15px;">
+                     <f:selectItem itemLabel="-- Оставить без кольца --" itemValue=""/>
+                     <f:selectItems value="#{deleteRingBean.deletionAnalysis.availableRings}"
+                                    var="freeRing"
+                                    itemLabel="#{freeRing.name} (ID: #{freeRing.id})"
+                                    itemValue="#{freeRing.id}"/>
+                  </h:selectOneMenu>
+               </div>
+
+               <div style="margin-top: 20px;">
+                  <h:commandButton value="✅ Подтвердить удаление с перепривязкой"
+                                   action="#{deleteRingBean.performDeletion}"
+                                   styleClass="btn btn-danger"/>
+
+                  <h:commandButton value="❌ Отмена"
+                                   action="#{deleteRingBean.cancelDeletion}"
+                                   styleClass="btn btn-secondary"/>
+               </div>
+            </h:form>
+         </div>
+      </div>
+   </ui:fragment>
 </h:body>
 </html>

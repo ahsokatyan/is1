@@ -17,11 +17,15 @@
    <style type="text/css">
       .container { max-width: 600px; margin: 0 auto; padding: 20px; }
       .warning-box { border: 2px solid #dc3545; background: #f8d7da; padding: 20px; border-radius: 5px; margin: 20px 0; }
+      .info-box { border: 2px solid #17a2b8; background: #d1ecf1; padding: 20px; border-radius: 5px; margin: 20px 0; }
       .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
       .details-table th, .details-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
       .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
       .btn-danger { background: #dc3545; color: white; }
       .btn-secondary { background: #6c757d; color: white; }
+      .dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+      .dialog-content { background: white; padding: 25px; border-radius: 8px; min-width: 600px; max-width: 80%; max-height: 80%; overflow-y: auto; }
+      .creature-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
    </style>
 </h:head>
 
@@ -67,9 +71,8 @@
 
          <h:form>
             <h:commandButton value="✅ Подтвердить удаление"
-                             action="#{deleteMagicCityBean.deleteCity}"
-                             styleClass="btn btn-danger"
-                             onclick="return confirm('Вы уверены что хотите удалить этот город?')"/>
+                             action="#{deleteMagicCityBean.initiateDeletion}"
+                             styleClass="btn btn-danger"/>
 
             <h:link outcome="view-city" value="❌ Отмена" styleClass="btn btn-secondary">
                <f:param name="id" value="#{deleteMagicCityBean.city.id}"/>
@@ -81,5 +84,52 @@
          <p style="color: red;">Город с ID #{deleteMagicCityBean.cityId} не найдено.</p>
       </ui:fragment>
    </div>
+
+   <!-- Диалог переселения существ -->
+   <h:form id="reassignmentDialogForm" rendered="#{deleteMagicCityBean.showDeleteDialog}">
+      <div class="dialog-overlay">
+         <div class="dialog-content">
+            <h2>🏙️ Переселение существ</h2>
+
+            <div class="info-box">
+               <p>В городе <strong>#{deleteMagicCityBean.city.name}</strong> проживает
+                  <strong>#{deleteMagicCityBean.deletionAnalysis.affectedCreaturesCount}</strong> существ.</p>
+               <p>Выберите новый город для переселения:</p>
+            </div>
+
+            <!-- Список существ в городе -->
+            <h4>🗺️ Существа в этом городе:</h4>
+            <div class="creature-list">
+               <ul>
+                  <ui:repeat value="#{deleteMagicCityBean.deletionAnalysis.affectedCreatures}" var="creature">
+                     <li>#{creature.name} (ID: #{creature.id})</li>
+                  </ui:repeat>
+               </ul>
+            </div>
+
+            <!-- Выбор нового города -->
+            <div style="margin: 20px 0;">
+               <h:outputLabel for="newCity" value="Выберите новый город для переселения:"/>
+               <h:selectOneMenu id="newCity" value="#{deleteMagicCityBean.selectedNewCityId}" style="width: 100%; padding: 8px;">
+                  <f:selectItem itemLabel="-- Оставить без города --" itemValue=""/>
+                  <f:selectItems value="#{deleteMagicCityBean.deletionAnalysis.availableCities}"
+                                 var="availableCity"
+                                 itemLabel="#{availableCity.name} (ID: #{availableCity.id})"
+                                 itemValue="#{availableCity.id}"/>
+               </h:selectOneMenu>
+            </div>
+
+            <div style="margin-top: 20px;">
+               <h:commandButton value="✅ Подтвердить удаление с переселением"
+                                action="#{deleteMagicCityBean.performDeletion}"
+                                styleClass="btn btn-danger"/>
+
+               <h:commandButton value="❌ Отмена"
+                                action="#{deleteMagicCityBean.cancelDeletion}"
+                                styleClass="btn btn-secondary"/>
+            </div>
+         </div>
+      </div>
+   </h:form>
 </h:body>
 </html>

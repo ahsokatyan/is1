@@ -17,4 +17,23 @@ public class BookCreatureRepository extends BasicRepository<BookCreature> {
         return BookCreature.class;
     }
 
+    /**
+     * Находит существо по ID кольца
+     */
+    public Optional<BookCreature> findByRingId(Long ringId) {
+        List<BookCreature> creatures = findAll();
+        return creatures.stream()
+                .filter(creature -> creature.getRing() != null &&
+                        creature.getRing().getId().equals(ringId))
+                .findFirst();
+    }
+
+    /**
+     * Находит всех существ в указанном городе
+     */
+    public List<BookCreature> findByCityId(Long cityId) {
+        return em.createQuery("SELECT b FROM BookCreature b WHERE b.creatureLocation.id = :cityId", BookCreature.class)
+                .setParameter("cityId", cityId)
+                .getResultList();
+    }
 }
