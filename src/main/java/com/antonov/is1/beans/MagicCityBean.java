@@ -1,5 +1,6 @@
 package com.antonov.is1.beans;
 
+import com.antonov.is1.entities.BookCreatureType;
 import com.antonov.is1.entities.MagicCity;
 import com.antonov.is1.services.MagicCityService;
 import lombok.Getter;
@@ -23,23 +24,27 @@ public class MagicCityBean implements Serializable {
     @Inject
     private MagicCityService magicCityService;
 
+    // Данные для отображения
     private List<MagicCity> cities;
     private MagicCity selectedCity;
     private MagicCity newCity;
 
-    @PostConstruct
-    public void init() {
-        loadCities();
-        initNewCity();
-    }
+    // Пагинация
+    private final int pageSize = 20;
+    private int currentPage = 1;
+    private long totalCount;
 
-    public void loadCities() {
+    public void loadData() {
         cities = magicCityService.getAllMagicCities();
+        totalCount = magicCityService.getAllMagicCities().size();
     }
 
     private void initNewCity() {
         newCity = new MagicCity();
+        newCity.setCapital(false);
     }
+
+    // ===== CRUD OPERATIONS =====
 
     public void createCity() {
         try {
@@ -49,7 +54,7 @@ public class MagicCityBean implements Serializable {
                     newCity.getCapital(), newCity.getPopulationDensity()
             );
             addMessage("Успех", "Город создан успешно!");
-            loadCities();
+            loadData();
             initNewCity();
         } catch (Exception e) {
             addMessage("Ошибка", "Не удалось создать город: " + e.getMessage());
@@ -60,7 +65,7 @@ public class MagicCityBean implements Serializable {
         try {
             magicCityService.updateMagicCity(selectedCity);
             addMessage("Успех", "Город обновлен успешно!");
-            loadCities();
+            loadData();
             selectedCity = null;
         } catch (Exception e) {
             addMessage("Ошибка", "Не удалось обновить город: " + e.getMessage());
@@ -72,13 +77,15 @@ public class MagicCityBean implements Serializable {
             try {
                 magicCityService.deleteMagicCity(selectedCity.getId());
                 addMessage("Успех", "Город удален успешно!");
-                loadCities();
+                loadData();
                 selectedCity = null;
             } catch (Exception e) {
                 addMessage("Ошибка", "Не удалось удалить город: " + e.getMessage());
             }
         }
     }
+
+    // ===== UTILITY METHODS =====
 
     private void addMessage(String summary, String detail) {
         FacesContext.getCurrentInstance().addMessage(

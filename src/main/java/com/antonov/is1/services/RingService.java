@@ -1,5 +1,6 @@
 package com.antonov.is1.services;
 
+import com.antonov.is1.entities.BookCreature;
 import com.antonov.is1.entities.Ring;
 import com.antonov.is1.repos.RingRepository;
 
@@ -20,6 +21,11 @@ public class RingService {
         ring.setPower(power);
         ring.setWeight(weight);
         return ringRepo.save(ring);
+    }
+
+    public List<Ring> getAllRings(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return ringRepo.findAll(offset, pageSize);
     }
 
     public Optional<Ring> getRingById(Long id) {

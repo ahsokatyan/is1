@@ -21,6 +21,10 @@ public class NavigationBean implements Serializable {
         return "cities?faces-redirect=true";
     }
 
+    public String goToRings() {
+        return "rings?faces-redirect=true";
+    }
+
     public String goToHome() {
         return "index?faces-redirect=true";
     }
@@ -37,6 +41,17 @@ public class NavigationBean implements Serializable {
     public String searchCreature() {
         if (searchId != null) {
             return "view-creature?id=" + searchId + "&faces-redirect=true";
+        }
+        return null;
+    }
+
+    public String goToCreateRing() {
+        return "create-ring?faces-redirect=true";
+    }
+
+    public String searchRing() {
+        if (searchId != null) {
+            return "view-ring?id=" + searchId + "&faces-redirect=true";
         }
         return null;
     }
