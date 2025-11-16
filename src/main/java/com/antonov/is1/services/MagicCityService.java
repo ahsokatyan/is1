@@ -3,6 +3,7 @@ package com.antonov.is1.services;
 
 import com.antonov.is1.entities.MagicCity;
 import com.antonov.is1.entities.BookCreatureType;
+import com.antonov.is1.entities.Ring;
 import com.antonov.is1.repos.MagicCityRepository;
 
 import javax.ejb.EJB;
@@ -38,6 +39,11 @@ public class MagicCityService {
 
     public List<MagicCity> getAllMagicCities() {
         return magicCityRepo.findAll();
+    }
+
+    public List<MagicCity> getAllMagicCities(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return magicCityRepo.findAll(offset, pageSize);
     }
 
     public MagicCity updateMagicCity(MagicCity city) {

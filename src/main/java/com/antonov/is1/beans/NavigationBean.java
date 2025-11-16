@@ -55,4 +55,15 @@ public class NavigationBean implements Serializable {
         }
         return null;
     }
+
+    public String goToCreateCity() {
+        return "create-city?faces-redirect=true";
+    }
+
+    public String searchCity() {
+        if (searchId != null) {
+            return "view-city?id=" + searchId + "&faces-redirect=true";
+        }
+        return null;
+    }
 }
