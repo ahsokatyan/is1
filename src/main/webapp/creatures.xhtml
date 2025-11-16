@@ -71,6 +71,31 @@
 
         .pagination {
             margin: 20px 0;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .pagination .btn {
+            margin: 0 5px;
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .pagination .btn:hover:not(:disabled) {
+            background: #007bff;
+            color: white;
+        }
+
+        .pagination .btn:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
     </style>
 </h:head>
@@ -172,32 +197,40 @@
             </h:dataTable>
 
             <!-- Простая пагинация -->
-            <div class="pagination">
-                <h:commandButton value="⏮️ Первая" action="#{bookCreatureBean.firstPage}"
-                                 disabled="#{bookCreatureBean.currentPage == 1}"/>
+            <div class="pagination" style="margin: 20px 0; text-align: center;">
+                <h:form>
+                    <!-- Кнопки навигации -->
+                    <h:commandButton value="⏮️ Первая"
+                                     action="#{bookCreatureBean.firstPage}"
+                                     disabled="#{bookCreatureBean.currentPage == 1}"
+                                     styleClass="btn"/>
 
-                <h:commandButton value="◀️ Назад" action="#{bookCreatureBean.previousPage}"
-                                 disabled="#{bookCreatureBean.currentPage == 1}"/>
+                    <h:commandButton value="◀️ Назад"
+                                     action="#{bookCreatureBean.previousPage}"
+                                     disabled="#{bookCreatureBean.currentPage == 1}"
+                                     styleClass="btn"/>
 
-                <span> Страница #{bookCreatureBean.currentPage} </span>
+                    <!-- Информация о странице -->
+                    <span style="margin: 0 15px; font-weight: bold;">
+            Страница #{bookCreatureBean.currentPage} из #{bookCreatureBean.totalPages}
+        </span>
 
-                <h:commandButton value="Вперед ▶️" action="#{bookCreatureBean.nextPage}"
-                                 disabled="#{bookCreatureBean.currentPage * bookCreatureBean.pageSize >= bookCreatureBean.totalCount}"/>
+                    <h:commandButton value="Вперед ▶️"
+                                     action="#{bookCreatureBean.nextPage}"
+                                     disabled="#{bookCreatureBean.currentPage >= bookCreatureBean.totalPages}"
+                                     styleClass="btn"/>
 
-                <h:commandButton value="Последняя ⏭️" action="#{bookCreatureBean.lastPage}"
-                                 disabled="#{bookCreatureBean.currentPage * bookCreatureBean.pageSize >= bookCreatureBean.totalCount}"/>
+                    <h:commandButton value="Последняя ⏭️"
+                                     action="#{bookCreatureBean.lastPage}"
+                                     disabled="#{bookCreatureBean.currentPage >= bookCreatureBean.totalPages}"
+                                     styleClass="btn"/>
 
-                <div>
-                    <h:outputLabel for="pageSizeSelect" value="Элементов на странице:"/>
-                    <h:selectOneMenu id="pageSizeSelect" value="#{bookCreatureBean.pageSize}">
-                        <f:selectItem itemLabel="5" itemValue="5"/>
-                        <f:selectItem itemLabel="10" itemValue="10"/>
-                        <f:selectItem itemLabel="20" itemValue="20"/>
-                        <f:selectItem itemLabel="50" itemValue="50"/>
-                        <f:ajax listener="#{bookCreatureBean.setPageSize(bookCreatureBean.pageSize)}"
-                                render="listForm"/>
-                    </h:selectOneMenu>
-                </div>
+                    <!-- Простая информация -->
+                    <div style="margin-top: 10px; color: #666;">
+                        Показано #{bookCreatureBean.creatures.size()} из #{bookCreatureBean.totalCount} существ
+                        (по 20 на странице)
+                    </div>
+                </h:form>
             </div>
         </h:form>
     </div>

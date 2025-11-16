@@ -48,8 +48,10 @@ public class BookCreatureBean implements Serializable {
 
     // Пагинация
     private int currentPage = 1;
-    private int pageSize = 5;
+    private int pageSize = 20;
     private long totalCount;
+
+
 
     @PostConstruct
     public void init() {
@@ -128,17 +130,27 @@ public class BookCreatureBean implements Serializable {
         loadData();
     }
 
+//    public void lastPage() {
+//        currentPage = (int) Math.ceil((double) totalCount / pageSize);
+//        loadData();
+//    }
+
     public void lastPage() {
-        currentPage = (int) Math.ceil((double) totalCount / pageSize);
+        currentPage = Math.toIntExact(getTotalPages());
         loadData();
     }
 
     public boolean hasNextPage() {
-        return (long) currentPage * pageSize < totalCount;
+        return currentPage < getTotalPages();
     }
 
     public boolean hasPreviousPage() {
         return currentPage > 1;
+    }
+
+    public long getTotalPages() {
+        if (totalCount == 0) return 1;
+        return (long) Math.ceil((double) totalCount / pageSize);
     }
 
     // ===== UTILITY METHODS =====
@@ -153,9 +165,7 @@ public class BookCreatureBean implements Serializable {
         this.pageSize = pageSize;
         firstPage(); // Сброс на первую страницу при изменении размера
     }
-    public long getTotalPages() {
-        return (long) Math.ceil((double) totalCount / pageSize);
-    }
+
 
     public String createCreatureInSeparatePage() {
         try {

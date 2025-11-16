@@ -3,6 +3,7 @@ package com.antonov.is1.services;
 
 import com.antonov.is1.entities.*;
 import com.antonov.is1.repos.*;
+import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -29,27 +30,6 @@ public class BookCreatureService {
     @EJB
     private RingRepository ringRepo;
 
-    /**
-     * Создание нового BookCreature с автоматической установкой creationDate
-     */
-    public BookCreature createBookCreature(BookCreature creature) {
-
-        // creationDate автоматически установится благодаря @PrePersist
-        if (creature.getCreatureLocation() != null) {
-            MagicCity managedCreatureLocation = magicCityRepo.findById(creature.getCreatureLocation().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("City not found"));
-            creature.setCreatureLocation(managedCreatureLocation);
-        }
-        if (creature.getRing() != null) {
-            Ring managedRing = ringRepo.findById(creature.getRing().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Ring not found"));
-            creature.setRing(managedRing);
-        }
-
-
-        return bookCreatureRepo.save(creature);
-
-    }
 
     /**
      * Получение BookCreature по ID
@@ -73,24 +53,7 @@ public class BookCreatureService {
         return bookCreatureRepo.findAll();
     }
 
-    /**
-     * Обновление BookCreature
-     */
-    public BookCreature updateBookCreature(BookCreature creature) {
-        return bookCreatureRepo.update(creature);
-    }
 
-    /**
-     * Удаление BookCreature по ID
-     */
-    public boolean deleteBookCreature(Long id) {
-        Optional<BookCreature> creature = bookCreatureRepo.findById(id);
-        if (creature.isPresent()) {
-            bookCreatureRepo.delete(creature.get());
-            return true;
-        }
-        return false;
-    }
     /**
      * Создание BookCreature со связями (координаты, город, кольцо)
      * Все связанные объекты сохраняются каскадно
@@ -145,7 +108,45 @@ public class BookCreatureService {
 
         return true;
     }
+    /**
+     * Создание нового BookCreature с автоматической установкой creationDate
+     */
+    public BookCreature createBookCreature(BookCreature creature) {
 
+        // creationDate автоматически установится благодаря @PrePersist
+        if (creature.getCreatureLocation() != null) {
+            MagicCity managedCreatureLocation = magicCityRepo.findById(creature.getCreatureLocation().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("City not found"));
+            creature.setCreatureLocation(managedCreatureLocation);
+        }
+        if (creature.getRing() != null) {
+            Ring managedRing = ringRepo.findById(creature.getRing().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Ring not found"));
+            creature.setRing(managedRing);
+        }
+
+
+        return bookCreatureRepo.save(creature);
+
+    }
+    /**
+     * Обновление BookCreature
+     */
+    public BookCreature updateBookCreature(BookCreature creature) {
+        return bookCreatureRepo.update(creature);
+    }
+
+    /**
+     * Удаление BookCreature по ID
+     */
+    public boolean deleteBookCreature(Long id) {
+        Optional<BookCreature> creature = bookCreatureRepo.findById(id);
+        if (creature.isPresent()) {
+            bookCreatureRepo.delete(creature.get());
+            return true;
+        }
+        return false;
+    }
 
 
 
