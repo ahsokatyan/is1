@@ -46,10 +46,32 @@
                 </div>
             </h:form>
         </div>
-        <!-- Форма создания нового существа -->
+        <!-- Форма создания нового города -->
         <div style="margin-bottom: 20px;">
             <h:link outcome="create-city" value="➕ Создать магический Город" styleClass="btn btn-primary"
                     style="font-size: 16px; padding: 10px 20px;"/>
+        </div>
+
+        <!-- Фильтрация -->
+        <div style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;">
+            <h3>🔍 Фильтрация городов</h3>
+            <h:form>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <h:inputText value="#{magicCityListBean.filterName}"
+                                 style="padding: 8px; width: 300px;"
+                                 placeholder="Введите часть названия города"/>
+                    <h:commandButton value="🔍 Фильтровать"
+                                     action="#{magicCityListBean.filterCities}"
+                                     style="padding: 8px 16px;"/>
+                    <h:commandButton value="❌ Сброс"
+                                     action="#{magicCityListBean.resetFilter}"
+                                     style="padding: 8px 16px;"/>
+                </div>
+                <p style="margin-top: 10px; color: #666;"
+                   rendered="#{magicCityListBean.filterName != null and magicCityListBean.filterName != ''}">
+                   Фильтр: "#{magicCityListBean.filterName}"
+                </p>
+            </h:form>
         </div>
 
         <hr/>
@@ -60,32 +82,56 @@
         <h:form id="listForm">
             <h:dataTable value="#{magicCityListBean.cities}" var="city" styleClass="table">
                 <h:column>
-                    <f:facet name="header">ID</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{magicCityListBean.sortBy('id')}" style="text-decoration: none; color: inherit;">
+                           ID#{magicCityListBean.getSortIndicator('id')}
+                        </h:commandLink>
+                    </f:facet>
                     #{city.id}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Название</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{magicCityListBean.sortBy('name')}" style="text-decoration: none; color: inherit;">
+                           Название#{magicCityListBean.getSortIndicator('name')}
+                        </h:commandLink>
+                    </f:facet>
                     #{city.name}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Площадь</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{magicCityListBean.sortBy('area')}" style="text-decoration: none; color: inherit;">
+                           Площадь#{magicCityListBean.getSortIndicator('area')}
+                        </h:commandLink>
+                    </f:facet>
                     #{city.area}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Население</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{magicCityListBean.sortBy('population')}" style="text-decoration: none; color: inherit;">
+                           Население#{magicCityListBean.getSortIndicator('population')}
+                        </h:commandLink>
+                    </f:facet>
                     #{city.population}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Правитель</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{magicCityListBean.sortBy('governor')}" style="text-decoration: none; color: inherit;">
+                           Правитель#{magicCityListBean.getSortIndicator('governor')}
+                        </h:commandLink>
+                    </f:facet>
                     #{city.governor}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Столица</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{magicCityListBean.sortBy('capital')}" style="text-decoration: none; color: inherit;">
+                           Столица#{magicCityListBean.getSortIndicator('capital')}
+                        </h:commandLink>
+                    </f:facet>
                     <h:outputText value="Да" rendered="#{city.capital}"/>
                     <h:outputText value="Нет" rendered="#{not city.capital}"/>
                 </h:column>

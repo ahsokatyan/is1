@@ -54,6 +54,28 @@
                  style="font-size: 16px; padding: 10px 20px;"/>
       </div>
 
+      <!-- Фильтрация -->
+      <div style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;">
+         <h3>🔍 Фильтрация колец</h3>
+         <h:form>
+            <div style="display: flex; gap: 10px; align-items: center;">
+               <h:inputText value="#{ringListBean.filterName}"
+                            style="padding: 8px; width: 300px;"
+                            placeholder="Введите часть названия кольца"/>
+               <h:commandButton value="🔍 Фильтровать"
+                                action="#{ringListBean.filterRings}"
+                                style="padding: 8px 16px;"/>
+               <h:commandButton value="❌ Сброс"
+                                action="#{ringListBean.resetFilter}"
+                                style="padding: 8px 16px;"/>
+            </div>
+            <p style="margin-top: 10px; color: #666;"
+               rendered="#{ringListBean.filterName != null and ringListBean.filterName != ''}">
+               Фильтр: "#{ringListBean.filterName}"
+            </p>
+         </h:form>
+      </div>
+
       <hr/>
 
       <!-- Таблица колец -->
@@ -62,22 +84,38 @@
       <h:form id="listForm">
          <h:dataTable value="#{ringListBean.rings}" var="ring" styleClass="table">
             <h:column>
-               <f:facet name="header">ID</f:facet>
+               <f:facet name="header">
+                  <h:commandLink action="#{ringListBean.sortBy('id')}" style="text-decoration: none; color: inherit;">
+                     ID#{ringListBean.getSortIndicator('id')}
+                  </h:commandLink>
+               </f:facet>
                #{ring.id}
             </h:column>
 
             <h:column>
-               <f:facet name="header">Название</f:facet>
+               <f:facet name="header">
+                  <h:commandLink action="#{ringListBean.sortBy('name')}" style="text-decoration: none; color: inherit;">
+                     Название#{ringListBean.getSortIndicator('name')}
+                  </h:commandLink>
+               </f:facet>
                #{ring.name}
             </h:column>
 
             <h:column>
-               <f:facet name="header">Сила</f:facet>
+               <f:facet name="header">
+                  <h:commandLink action="#{ringListBean.sortBy('power')}" style="text-decoration: none; color: inherit;">
+                     Сила#{ringListBean.getSortIndicator('power')}
+                  </h:commandLink>
+               </f:facet>
                #{ring.power != null ? ring.power : 'Не указана'}
             </h:column>
 
             <h:column>
-               <f:facet name="header">Вес</f:facet>
+               <f:facet name="header">
+                  <h:commandLink action="#{ringListBean.sortBy('weight')}" style="text-decoration: none; color: inherit;">
+                     Вес#{ringListBean.getSortIndicator('weight')}
+                  </h:commandLink>
+               </f:facet>
                #{ring.weight}
             </h:column>
 

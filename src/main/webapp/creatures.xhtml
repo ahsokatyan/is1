@@ -133,6 +133,28 @@
                     style="font-size: 16px; padding: 10px 20px;"/>
         </div>
 
+        <!-- Фильтрация -->
+        <div style="border: 1px solid #ccc; padding: 15px; margin: 20px 0; background-color: #f9f9f9;">
+            <h3>🔍 Фильтрация существ</h3>
+            <h:form>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <h:inputText value="#{bookCreatureBean.filterName}"
+                                 style="padding: 8px; width: 300px;"
+                                 placeholder="Введите часть имени существа"/>
+                    <h:commandButton value="🔍 Фильтровать"
+                                     action="#{bookCreatureBean.filterCreatures}"
+                                     style="padding: 8px 16px;"/>
+                    <h:commandButton value="❌ Сброс"
+                                     action="#{bookCreatureBean.resetFilter}"
+                                     style="padding: 8px 16px;"/>
+                </div>
+                <p style="margin-top: 10px; color: #666;"
+                   rendered="#{bookCreatureBean.filterName != null and bookCreatureBean.filterName != ''}">
+                   Фильтр: "#{bookCreatureBean.filterName}"
+                </p>
+            </h:form>
+        </div>
+
         <hr/>
 
         <!-- Таблица существ -->
@@ -141,22 +163,38 @@
         <h:form id="listForm">
             <h:dataTable value="#{bookCreatureBean.creatures}" var="creature" styleClass="table">
                 <h:column>
-                    <f:facet name="header">ID</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{bookCreatureBean.sortBy('id')}" style="text-decoration: none; color: inherit;">
+                           ID#{bookCreatureBean.getSortIndicator('id')}
+                        </h:commandLink>
+                    </f:facet>
                     #{creature.id}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Имя</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{bookCreatureBean.sortBy('name')}" style="text-decoration: none; color: inherit;">
+                           Имя#{bookCreatureBean.getSortIndicator('name')}
+                        </h:commandLink>
+                    </f:facet>
                     #{creature.name}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Тип</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{bookCreatureBean.sortBy('creatureType')}" style="text-decoration: none; color: inherit;">
+                           Тип#{bookCreatureBean.getSortIndicator('creatureType')}
+                        </h:commandLink>
+                    </f:facet>
                     #{creature.creatureType}
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Возраст</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{bookCreatureBean.sortBy('age')}" style="text-decoration: none; color: inherit;">
+                           Возраст#{bookCreatureBean.getSortIndicator('age')}
+                        </h:commandLink>
+                    </f:facet>
                     #{creature.age}
                 </h:column>
 
@@ -166,7 +204,11 @@
                 </h:column>
 
                 <h:column>
-                    <f:facet name="header">Уровень атаки</f:facet>
+                    <f:facet name="header">
+                        <h:commandLink action="#{bookCreatureBean.sortBy('attackLevel')}" style="text-decoration: none; color: inherit;">
+                           Уровень атаки#{bookCreatureBean.getSortIndicator('attackLevel')}
+                        </h:commandLink>
+                    </f:facet>
                     #{creature.attackLevel}
                 </h:column>
 
@@ -178,6 +220,11 @@
                 <h:column>
                     <f:facet name="header">Кольцо</f:facet>
                     #{creature.ring != null ? creature.ring.toString() : 'Нет'}
+                </h:column>
+
+                <h:column>
+                    <f:facet name="header">Дата создания</f:facet>
+                    #{creature.creationDate}
                 </h:column>
 
                 <h:column>
