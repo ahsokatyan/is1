@@ -3,6 +3,7 @@ package com.antonov.is1.services;
 import com.antonov.is1.entities.BookCreature;
 import com.antonov.is1.entities.Ring;
 import com.antonov.is1.repos.RingRepository;
+import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -20,7 +21,10 @@ public class RingService {
         ring.setName(name);
         ring.setPower(power);
         ring.setWeight(weight);
-        return ringRepo.save(ring);
+        Ring savedRing = ringRepo.save(ring);
+        // Уведомляем клиентов о создании кольца
+        CreaturesWebSocket.notifyRingCreated(savedRing.getId());
+        return savedRing;
     }
 
     public List<Ring> getAllRings(int page, int pageSize) {
@@ -37,13 +41,18 @@ public class RingService {
     }
 
     public Ring updateRing(Ring ring) {
-        return ringRepo.update(ring);
+        Ring updatedRing = ringRepo.update(ring);
+        // Уведомляем клиентов об обновлении кольца
+        CreaturesWebSocket.notifyRingUpdated(updatedRing.getId());
+        return updatedRing;
     }
 
     public boolean deleteRing(Long id) {
         Optional<Ring> ring = ringRepo.findById(id);
         if (ring.isPresent()) {
             ringRepo.delete(ring.get());
+            // Уведомляем клиентов об удалении кольца
+            CreaturesWebSocket.notifyRingDeleted(id);
             return true;
         }
         return false;

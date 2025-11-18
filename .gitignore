@@ -36,7 +36,6 @@ src/main/java/com/antonov/is1/HelloServlet.java
 src/main/java/com/antonov/is1/TestRepos.java
 src/main/java/com/antonov/is1/TestServices.java
 src/main/java/com/antonov/is1/TestServlet.java
-src/main/java/com/antonov/is1/websocket/CreaturesWebSocket.java
 ### VS Code ###
 .vscode/
 

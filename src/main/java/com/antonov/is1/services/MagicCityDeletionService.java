@@ -4,6 +4,7 @@ import com.antonov.is1.entities.BookCreature;
 import com.antonov.is1.entities.MagicCity;
 import com.antonov.is1.repos.BookCreatureRepository;
 import com.antonov.is1.repos.MagicCityRepository;
+import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -70,5 +71,7 @@ public class MagicCityDeletionService {
 
         // Удаляем город
         magicCityRepo.delete(city);
+        // Уведомляем клиентов об удалении города
+        CreaturesWebSocket.notifyCityDeleted(cityId);
     }
 }

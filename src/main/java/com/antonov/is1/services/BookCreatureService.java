@@ -7,11 +7,7 @@ import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.PrePersist;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -127,14 +123,20 @@ public class BookCreatureService {
         }
 
 
-        return bookCreatureRepo.save(creature);
+        BookCreature savedCreature = bookCreatureRepo.save(creature);
+        // Уведомляем клиентов о создании существа
+        CreaturesWebSocket.notifyCreatureCreated(savedCreature.getId());
+        return savedCreature;
 
     }
     /**
      * Обновление BookCreature
      */
     public BookCreature updateBookCreature(BookCreature creature) {
-        return bookCreatureRepo.update(creature);
+        BookCreature updatedCreature = bookCreatureRepo.update(creature);
+        // Уведомляем клиентов об обновлении существа
+        CreaturesWebSocket.notifyCreatureUpdated(updatedCreature.getId());
+        return updatedCreature;
     }
 
     /**
@@ -144,6 +146,8 @@ public class BookCreatureService {
         Optional<BookCreature> creature = bookCreatureRepo.findById(id);
         if (creature.isPresent()) {
             bookCreatureRepo.delete(creature.get());
+            // Уведомляем клиентов об удалении существа
+            CreaturesWebSocket.notifyCreatureDeleted(id);
             return true;
         }
         return false;

@@ -4,6 +4,7 @@ import com.antonov.is1.entities.BookCreature;
 import com.antonov.is1.entities.Ring;
 import com.antonov.is1.repos.BookCreatureRepository;
 import com.antonov.is1.repos.RingRepository;
+import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -107,5 +108,7 @@ public class RingDeletionService {
 
         // Удаляем кольцо
         ringRepo.delete(ring);
+        // Уведомляем клиентов об удалении кольца
+        CreaturesWebSocket.notifyRingDeleted(ringId);
     }
 }

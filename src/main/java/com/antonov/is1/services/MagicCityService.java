@@ -5,6 +5,7 @@ import com.antonov.is1.entities.MagicCity;
 import com.antonov.is1.entities.BookCreatureType;
 import com.antonov.is1.entities.Ring;
 import com.antonov.is1.repos.MagicCityRepository;
+import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -30,7 +31,10 @@ public class MagicCityService {
         city.setCapital(capital);
         city.setPopulationDensity(populationDensity);
 
-        return magicCityRepo.save(city);
+        MagicCity savedCity = magicCityRepo.save(city);
+        // Уведомляем клиентов о создании города
+        CreaturesWebSocket.notifyCityCreated(savedCity.getId());
+        return savedCity;
     }
 
     public Optional<MagicCity> getMagicCityById(Long id) {
@@ -47,13 +51,18 @@ public class MagicCityService {
     }
 
     public MagicCity updateMagicCity(MagicCity city) {
-        return magicCityRepo.update(city);
+        MagicCity updatedCity = magicCityRepo.update(city);
+        // Уведомляем клиентов об обновлении города
+        CreaturesWebSocket.notifyCityUpdated(updatedCity.getId());
+        return updatedCity;
     }
 
     public boolean deleteMagicCity(Long id) {
         Optional<MagicCity> city = magicCityRepo.findById(id);
         if (city.isPresent()) {
             magicCityRepo.delete(city.get());
+            // Уведомляем клиентов об удалении города
+            CreaturesWebSocket.notifyCityDeleted(id);
             return true;
         }
         return false;

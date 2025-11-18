@@ -4,6 +4,7 @@ import com.antonov.is1.entities.BookCreature;
 import com.antonov.is1.entities.Ring;
 import com.antonov.is1.repos.BookCreatureRepository;
 import com.antonov.is1.repos.RingRepository;
+import com.antonov.is1.websocket.CreaturesWebSocket;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -81,8 +82,9 @@ public class BookCreatureDeletionService {
                 creature.setRing(null);
             }
         }
-
         // Удаляем существо (Coordinates удалятся каскадно)
         bookCreatureRepo.delete(creature);
+        // Уведомляем клиентов об удалении существа
+        CreaturesWebSocket.notifyCreatureDeleted(creatureId);
     }
 }
