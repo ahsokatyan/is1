@@ -1,8 +1,11 @@
 package com.antonov.is1.beans;
 
 import com.antonov.is1.entities.BookCreature;
+import com.antonov.is1.entities.MagicCity;
 import com.antonov.is1.entities.Ring;
+import com.antonov.is1.services.AttackLevelDeletionAnalysis;
 import com.antonov.is1.services.BookCreatureService;
+import com.antonov.is1.services.MagicCityDestructionAnalysis;
 import com.antonov.is1.services.MagicCityService;
 import com.antonov.is1.services.RingService;
 import lombok.Getter;
@@ -38,6 +41,17 @@ public class SpecialOperationsBean implements Serializable {
     private List<Ring> uniqueRings;
     private Long attackLevelToDelete;
     private String operationResult;
+
+    // Поля для операции удаления по attackLevel
+    private AttackLevelDeletionAnalysis deletionAnalysis;
+    private boolean showAttackLevelConfirmation = false;
+    private List<BookCreature> ringsToReassignTo; // Существа, которым будут назначены кольца
+    private List<Ring> ringsToReassign; // Кольца, которые будут переназначены
+    private List<Ring> ringsWithoutOwner; // Кольца, которые будут без хозяина
+
+    // Поля для операции уничтожения городов эльфов
+    private Long targetCityId; // null означает оставить существ без города
+    private List<MagicCity> destroyedElfCities; // Список уничтоженных городов для отображения
 
     @PostConstruct
     public void init() {
@@ -100,21 +114,66 @@ public class SpecialOperationsBean implements Serializable {
      * Удалить все объекты, значение поля attackLevel которого эквивалентно заданному
      */
     public void deleteByAttackLevel() {
-        // Заглушка - просто показываем сообщение
         if (attackLevelToDelete == null) {
             addMessage("Ошибка", "Введите значение attackLevel");
             return;
         }
 
         try {
-            // Здесь будет реальная логика удаления
-            // Пока просто заглушка
-            addMessage("Информация",
-                    "Операция в разработке. Должны быть удалены существа с attackLevel = " +
-                            attackLevelToDelete);
+            // Проводим анализ
+            deletionAnalysis = bookCreatureService.analyzeDeletionByAttackLevel(attackLevelToDelete);
 
-            // Сброс значения
-            attackLevelToDelete = null;
+            if (!deletionAnalysis.hasCreaturesToDelete()) {
+                addMessage("Информация", "Не найдено существ с attackLevel = " + attackLevelToDelete);
+                showAttackLevelConfirmation = false;
+                return;
+            }
+
+            // Подготовим списки для отображения переназначения
+            List<Ring> ringsFromDeleted = deletionAnalysis.getRingsFromDeletedCreatures();
+            List<BookCreature> creaturesWithoutRings = deletionAnalysis.getCreaturesWithoutRings();
+
+            // Разделяем кольца на те, что будут переназначены, и те, что останутся без хозяина
+            ringsToReassign = ringsFromDeleted.stream()
+                    .limit(creaturesWithoutRings.size())
+                    .collect(Collectors.toList());
+
+            ringsWithoutOwner = ringsFromDeleted.size() > creaturesWithoutRings.size() ?
+                    ringsFromDeleted.subList(creaturesWithoutRings.size(), ringsFromDeleted.size()) :
+                    java.util.Collections.emptyList();
+
+            ringsToReassignTo = creaturesWithoutRings.stream()
+                    .limit(ringsToReassign.size())
+                    .collect(Collectors.toList());
+
+            // Показываем подтверждение
+            showAttackLevelConfirmation = true;
+
+        } catch (Exception e) {
+            addMessage("Ошибка", "Не удалось выполнить анализ операции: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Подтверждает и выполняет удаление по attackLevel
+     */
+    public void confirmDeleteByAttackLevel() {
+        if (deletionAnalysis == null || deletionAnalysis.getTargetAttackLevel() == null) {
+            addMessage("Ошибка", "Нет данных для выполнения операции");
+            return;
+        }
+
+        try {
+            bookCreatureService.performDeletionByAttackLevel(deletionAnalysis.getTargetAttackLevel());
+
+            addMessage("Успех", String.format("Удалено %d существ с attackLevel = %d, переназначено %d колец",
+                    deletionAnalysis.getCreaturesToDelete().size(),
+                    deletionAnalysis.getTargetAttackLevel(),
+                    Math.min(deletionAnalysis.getRingsFromDeletedCreatures().size(),
+                            deletionAnalysis.getCreaturesWithoutRings().size())));
+
+            // Сбрасываем состояние
+            resetAttackLevelOperation();
 
         } catch (Exception e) {
             addMessage("Ошибка", "Не удалось выполнить операцию: " + e.getMessage());
@@ -122,13 +181,30 @@ public class SpecialOperationsBean implements Serializable {
     }
 
     /**
+     * Отменяет операцию удаления по attackLevel
+     */
+    public void cancelDeleteByAttackLevel() {
+        resetAttackLevelOperation();
+        addMessage("Информация", "Операция удаления отменена");
+    }
+
+    private void resetAttackLevelOperation() {
+        showAttackLevelConfirmation = false;
+        deletionAnalysis = null;
+        ringsToReassignTo = null;
+        ringsToReassign = null;
+        ringsWithoutOwner = null;
+        attackLevelToDelete = null;
+    }
+
+    /**
      * Забрать все кольца у хоббитов
      */
     public void takeRingsFromHobbits() {
         try {
-            // Заглушка - просто показываем сообщение
-            addMessage("Информация",
-                    "Операция в разработке. Будут отобраны кольца у всех хоббитов");
+            int ringsTaken = bookCreatureService.takeRingsFromHobbits();
+            addMessage("Успех",
+                    "Отобрано " + ringsTaken + " колец у хоббитов. Кольца теперь не привязаны к существам.");
 
         } catch (Exception e) {
             addMessage("Ошибка", "Не удалось выполнить операцию: " + e.getMessage());
@@ -140,9 +216,65 @@ public class SpecialOperationsBean implements Serializable {
      */
     public void destroyElfCities() {
         try {
-            // Заглушка - просто показываем сообщение
-            addMessage("Информация",
-                    "Операция в разработке. Будут уничтожены города, где правителями являются эльфы");
+            // Находим города эльфов
+            List<MagicCity> elfCities = magicCityService.findCitiesWithElfGovernor();
+
+            if (elfCities.isEmpty()) {
+                addMessage("Информация", "Не найдено городов с эльфами-правителями");
+                return;
+            }
+
+            // Находим существ, проживающих в этих городах
+            List<BookCreature> affectedCreatures = bookCreatureService.getAllBookCreatures().stream()
+                    .filter(creature -> creature.getCreatureLocation() != null)
+                    .filter(creature -> elfCities.contains(creature.getCreatureLocation()))
+                    .collect(Collectors.toList());
+
+            // Если есть существа, которых нужно переселить или оставить без города
+            if (!affectedCreatures.isEmpty()) {
+                if (targetCityId != null) {
+                    // Если нужно переселить, находим целевой город
+                    MagicCity targetCity = magicCityService.getMagicCityById(targetCityId)
+                            .orElseThrow(() -> new IllegalArgumentException("Целевой город не найден"));
+
+                    // Переселяем всех существ в целевой город
+                    for (BookCreature creature : affectedCreatures) {
+                        creature.setCreatureLocation(targetCity);
+                    }
+
+                    bookCreatureService.updateCreatures(affectedCreatures);
+                    addMessage("Успех", String.format("Уничтожено %d городов эльфов. %d существ переселены в город %s",
+                            elfCities.size(),
+                            affectedCreatures.size(),
+                            targetCity.getName()));
+                } else {
+                    // Оставляем существ без города
+                    for (BookCreature creature : affectedCreatures) {
+                        creature.setCreatureLocation(null);
+                    }
+
+                    bookCreatureService.updateCreatures(affectedCreatures);
+                    addMessage("Успех", String.format("Уничтожено %d городов эльфов. %d существ оставлены без города",
+                            elfCities.size(),
+                            affectedCreatures.size()));
+                }
+            } else {
+                addMessage("Успех", String.format("Уничтожено %d городов эльфов. Никто не пострадал.",
+                        elfCities.size()));
+            }
+
+            // Удаляем города эльфов и сохраняем для отображения
+            for (MagicCity city : elfCities) {
+                magicCityService.deleteMagicCity(city.getId());
+            }
+
+            // Сохраняем уничтоженные города для отображения (до 20)
+            this.destroyedElfCities = elfCities.stream()
+                    .limit(20)
+                    .collect(Collectors.toList());
+
+            // Сбрасываем параметры
+            targetCityId = null;
 
         } catch (Exception e) {
             addMessage("Ошибка", "Не удалось выполнить операцию: " + e.getMessage());
@@ -156,6 +288,42 @@ public class SpecialOperationsBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(
                 null, new FacesMessage(FacesMessage.SEVERITY_INFO, summary, detail)
         );
+    }
+
+    public List<MagicCity> getAvailableCities() {
+        return magicCityService.getAllMagicCities();
+    }
+
+    public List<MagicCity> getNonElfCities() {
+        return magicCityService.getAllMagicCities().stream()
+                .filter(city -> city.getGovernor() == null || city.getGovernor() != com.antonov.is1.entities.BookCreatureType.ELF)
+                .limit(20) // Ограничиваем первыми 20 городами
+                .collect(Collectors.toList());
+    }
+
+    public List<MagicCity> getDestroyedElfCities() {
+        return destroyedElfCities != null ? destroyedElfCities : java.util.Collections.emptyList();
+    }
+
+    // Getters для операции удаления по attackLevel
+    public boolean isShowAttackLevelConfirmation() {
+        return showAttackLevelConfirmation;
+    }
+
+    public AttackLevelDeletionAnalysis getDeletionAnalysis() {
+        return deletionAnalysis;
+    }
+
+    public List<BookCreature> getRingsToReassignTo() {
+        return ringsToReassignTo != null ? ringsToReassignTo : java.util.Collections.emptyList();
+    }
+
+    public List<Ring> getRingsToReassign() {
+        return ringsToReassign != null ? ringsToReassign : java.util.Collections.emptyList();
+    }
+
+    public List<Ring> getRingsWithoutOwner() {
+        return ringsWithoutOwner != null ? ringsWithoutOwner : java.util.Collections.emptyList();
     }
 
 }

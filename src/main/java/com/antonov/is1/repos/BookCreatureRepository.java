@@ -2,6 +2,7 @@ package com.antonov.is1.repos;
 
 import com.antonov.is1.entities.BookCreature;
 import com.antonov.is1.entities.BookCreatureType;
+import com.antonov.is1.entities.MagicCity;
 import lombok.NoArgsConstructor;
 
 import javax.ejb.Stateless;
@@ -70,6 +71,42 @@ public class BookCreatureRepository extends BasicRepository<BookCreature> {
             return em.createQuery(
                             "SELECT b FROM BookCreature b WHERE b.creatureType = :type", BookCreature.class)
                     .setParameter("type", type)
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Находит всех существ указанного типа с кольцами
+     */
+    public List<BookCreature> findByTypeWithRings(BookCreatureType type) {
+        if (type == null) {
+            return new ArrayList<>();
+        }
+
+        try {
+            return em.createQuery(
+                            "SELECT b FROM BookCreature b WHERE b.creatureType = :type AND b.ring IS NOT NULL", BookCreature.class)
+                    .setParameter("type", type)
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Находит всех существ, проживающих в указанном городе
+     */
+    public List<BookCreature> findByCity(MagicCity city) {
+        if (city == null) {
+            return new ArrayList<>();
+        }
+
+        try {
+            return em.createQuery(
+                            "SELECT b FROM BookCreature b WHERE b.creatureLocation = :city", BookCreature.class)
+                    .setParameter("city", city)
                     .getResultList();
         } catch (Exception e) {
             return new ArrayList<>();

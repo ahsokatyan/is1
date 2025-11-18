@@ -18,4 +18,13 @@ public class MagicCityRepository extends BasicRepository<MagicCity> {
         return MagicCity.class;
     }
 
+    /**
+     * Находит города, где правителем является эльф
+     */
+    public List<MagicCity> findCitiesWithElfGovernor() {
+        return em.createQuery(
+                "SELECT mc FROM MagicCity mc WHERE mc.governor = :governor", MagicCity.class)
+                .setParameter("governor", BookCreatureType.ELF)
+                .getResultList();
+    }
 }

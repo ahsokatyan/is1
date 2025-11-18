@@ -59,4 +59,8 @@ public class MagicCityService {
         return false;
     }
 
+    public List<MagicCity> findCitiesWithElfGovernor() {
+        return magicCityRepo.findCitiesWithElfGovernor();
+    }
+
 }
