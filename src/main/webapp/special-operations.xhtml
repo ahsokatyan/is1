@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+
+<h:head>
+    <title>Специальные операции</title>
+    <style type="text/css">
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .operation-section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        .operation-header {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+        .result-box {
+            background: #e9f7ef;
+            border: 1px solid #28a745;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table th { background-color: #f5f5f5; }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="container">
+        <h1>⚡ Специальные операции</h1>
+
+        <!-- Навигация -->
+        <div style="margin-bottom: 20px;">
+            <h:form>
+                <h:commandButton value="🏠 Главная" action="index" styleClass="btn"/>
+                <h:commandButton value="📖 Существа" action="creatures" styleClass="btn"/>
+                <h:commandButton value="🏙️ Города" action="cities" styleClass="btn"/>
+                <h:commandButton value="💍 Кольца" action="rings" styleClass="btn"/>
+            </h:form>
+        </div>
+
+        <h:messages/>
+
+        <!-- Общий результат операции -->
+        <ui:fragment rendered="#{specialOperationsBean.operationResult != null}">
+            <div class="result-box">
+                <h4>📝 Результат последней операции:</h4>
+                <p>#{specialOperationsBean.operationResult}</p>
+            </div>
+        </ui:fragment>
+
+        <!-- Операция 1: Удалить по attackLevel -->
+        <div class="operation-section">
+            <div class="operation-header">
+                <h3>🗑️ Операция 1: Удалить существа по attackLevel</h3>
+            </div>
+            <p>Удалить все объекты, значение поля attackLevel которого эквивалентно заданному</p>
+
+            <h:form>
+                <div class="form-group">
+                    <h:outputLabel for="attackLevel" value="Значение attackLevel:"/>
+                    <h:inputText id="attackLevel" value="#{specialOperationsBean.attackLevelToDelete}"
+                                 required="true" style="width: 200px;">
+                        <f:validateLongRange minimum="1"/>
+                    </h:inputText>
+                </div>
+
+                <h:commandButton value="🚀 Выполнить операцию"
+                                 action="#{specialOperationsBean.deleteByAttackLevel}"
+                                 styleClass="btn btn-danger"/>
+            </h:form>
+        </div>
+
+        <!-- Операция 2: Найти существо с максимальной датой создания -->
+        <div class="operation-section">
+            <div class="operation-header">
+                <h3>📅 Операция 2: Найти самое новое существо</h3>
+            </div>
+            <p>Вернуть один (любой) объект, значение поля creationDate которого является максимальным</p>
+
+            <h:form>
+                <h:commandButton value="🚀 Выполнить операцию"
+                                 action="#{specialOperationsBean.findCreatureWithMaxCreationDate}"
+                                 styleClass="btn btn-primary"/>
+            </h:form>
+
+            <ui:fragment rendered="#{specialOperationsBean.creatureWithMaxCreationDate != null}">
+                <div class="result-box">
+                    <h4>📊 Результат:</h4>
+                    <table class="table">
+                        <tr>
+                            <th>ID</th>
+                            <td>#{specialOperationsBean.creatureWithMaxCreationDate.id}</td>
+                        </tr>
+                        <tr>
+                            <th>Имя</th>
+                            <td>#{specialOperationsBean.creatureWithMaxCreationDate.name}</td>
+                        </tr>
+                        <tr>
+                            <th>Тип</th>
+                            <td>#{specialOperationsBean.creatureWithMaxCreationDate.creatureType}</td>
+                        </tr>
+                        <tr>
+                            <th>Дата создания</th>
+                            <td>#{specialOperationsBean.creatureWithMaxCreationDate.creationDate}</td>
+                        </tr>
+                        <tr>
+                            <th>Возраст</th>
+                            <td>#{specialOperationsBean.creatureWithMaxCreationDate.age}</td>
+                        </tr>
+                        <tr>
+                            <th>Уровень атаки</th>
+                            <td>#{specialOperationsBean.creatureWithMaxCreationDate.attackLevel}</td>
+                        </tr>
+                    </table>
+                </div>
+            </ui:fragment>
+        </div>
+
+        <!-- Операция 3: Уникальные кольца -->
+        <div class="operation-section">
+            <div class="operation-header">
+                <h3>💍 Операция 3: Уникальные кольца</h3>
+            </div>
+            <p>Вернуть массив уникальных значений поля ring по всем объектам</p>
+
+            <h:form>
+                <h:commandButton value="🚀 Выполнить операцию"
+                                 action="#{specialOperationsBean.findUniqueRings}"
+                                 styleClass="btn btn-info"/>
+            </h:form>
+
+            <ui:fragment rendered="#{specialOperationsBean.uniqueRings != null and !specialOperationsBean.uniqueRings.isEmpty()}">
+                <div class="result-box">
+                    <h4>📊 Результат: найдено #{specialOperationsBean.uniqueRings.size()} уникальных колец</h4>
+                    <table class="table">
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Сила</th>
+                            <th>Вес</th>
+                        </tr>
+                        <ui:repeat value="#{specialOperationsBean.uniqueRings}" var="ring">
+                            <tr>
+                                <td>#{ring.id}</td>
+                                <td>#{ring.name}</td>
+                                <td>#{ring.power != null ? ring.power : 'Не указана'}</td>
+                                <td>#{ring.weight}</td>
+                            </tr>
+                        </ui:repeat>
+                    </table>
+                </div>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{specialOperationsBean.uniqueRings != null and specialOperationsBean.uniqueRings.isEmpty()}">
+                <div class="result-box">
+                    <p>❌ Не найдено уникальных колец</p>
+                </div>
+            </ui:fragment>
+        </div>
+
+        <!-- Операция 4: Забрать кольца у хоббитов -->
+        <div class="operation-section">
+            <div class="operation-header">
+                <h3>👹 Операция 4: Забрать кольца у хоббитов</h3>
+            </div>
+            <p>Забрать все кольца у хоббитов</p>
+
+            <h:form>
+                <h:commandButton value="🚀 Выполнить операцию"
+                                 action="#{specialOperationsBean.takeRingsFromHobbits}"
+                                 styleClass="btn btn-warning"
+                                 onclick="return confirm('Вы уверены что хотите забрать кольца у хоббитов?')"/>
+            </h:form>
+        </div>
+
+        <!-- Операция 5: Уничтожить города эльфов -->
+        <div class="operation-section">
+            <div class="operation-header">
+                <h3>🔥 Операция 5: Уничтожить города эльфов</h3>
+            </div>
+            <p>Уничтожить города эльфов</p>
+
+            <h:form>
+                <h:commandButton value="🚀 Выполнить операцию"
+                                 action="#{specialOperationsBean.destroyElfCities}"
+                                 styleClass="btn btn-danger"
+                                 onclick="return confirm('ВНИМАНИЕ! Это действие необратимо. Уничтожить города эльфов?')"/>
+            </h:form>
+        </div>
+    </div>
+</h:body>
+</html>

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.ejb.Stateless;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,5 +58,21 @@ public class BookCreatureRepository extends BasicRepository<BookCreature> {
                 .filter(creature -> creature.getRing() == null &&
                         !creature.getId().equals(excludeCreatureId))
                 .collect(Collectors.toList());
+    }
+
+    public List<BookCreature> findByType(BookCreatureType type) {
+        if (type == null) {
+            // Если тип не указан, возвращаем пустой список
+            return new ArrayList<>();
+        }
+
+        try {
+            return em.createQuery(
+                            "SELECT b FROM BookCreature b WHERE b.creatureType = :type", BookCreature.class)
+                    .setParameter("type", type)
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 }

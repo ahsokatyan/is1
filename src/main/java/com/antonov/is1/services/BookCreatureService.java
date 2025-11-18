@@ -148,6 +148,8 @@ public class BookCreatureService {
         return false;
     }
 
-
+    public List<BookCreature> findBookCreaturesByType(BookCreatureType type) {
+        return bookCreatureRepo.findByType(type);
+    }
 
 }

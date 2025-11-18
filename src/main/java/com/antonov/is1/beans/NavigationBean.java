@@ -66,4 +66,8 @@ public class NavigationBean implements Serializable {
         }
         return null;
     }
+
+    public String goToSpecialOperations() {
+        return "special-operations?faces-redirect=true";
+    }
 }
